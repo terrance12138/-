@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI自动记账应用原型</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .prototype-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .screen {
+            background-color: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 270px;
+            height: 580px;
+            position: relative;
+        }
+        
+        .screen-title {
+            text-align: center;
+            font-size: 14px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        /* 启动页 */
+        .splash-screen {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .splash-logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .splash-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .splash-subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        /* 登录页 */
+        .login-screen {
+            padding: 30px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 14px;
+            color: #999;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .login-button {
+            background-color: #6e8efb;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        /* 首页/仪表盘 */
+        .dashboard {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dashboard-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .user-greeting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .greeting-text h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .greeting-text p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+        }
+        
+        .balance-card {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .balance-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .balance-amount {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .balance-action-btn {
+            background-color: white;
+            color: #6e8efb;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .dashboard-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title a {
+            font-size: 14px;
+            color: #6e8efb;
+            text-decoration: none;
+        }
+        
+        .quick-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 20px;
+            color: #6e8efb;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .recent-transactions {
+            margin-bottom: 20px;
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+            margin-right: 12px;
+        }
+        
+        .transaction-details {
+            flex: 1;
+        }
+        
+        .transaction-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .transaction-date {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .expense {
+            color: #ff5252;
+        }
+        
+        .income {
+            color: #4caf50;
+        }
+        
+        /* 记账界面 */
+        .add-record {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .add-record-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .add-record-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .add-record-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .record-type-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .record-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .record-tab.active {
+            color: #6e8efb;
+            border-bottom: 2px solid #6e8efb;
+            font-weight: bold;
+        }
+        
+        .amount-input {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .amount-input input {
+            font-size: 32px;
+            font-weight: bold;
+            border: none;
+            text-align: center;
+            width: 100%;
+            outline: none;
+        }
+        
+        .record-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .record-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .option-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+        }
+        
+        .option-name {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .record-details {
+            margin-bottom: 30px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .save-record-btn {
+            background-color: #6e8efb;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        /* AI记账界面 */
+        .ai-record {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ai-record-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ai-record-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ai-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .ai-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            gap: 15px;
+        }
+        
+        .ai-method-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: #6e8efb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .ai-method-details {
+            flex: 1;
+        }
+        
+        .ai-method-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .ai-method-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .ai-history {
+            flex: 1;
+        }
+        
+        .ai-history-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .ai-history-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ai-history-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+            margin-right: 12px;
+        }
+        
+        /* 账单明细 */
+        .transactions {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .transactions-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .transactions-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .filter-option {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .filter-option.active {
+            background-color: white;
+            color: #6e8efb;
+            font-weight: bold;
+        }
+        
+        .transactions-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .transaction-date-group {
+            margin-bottom: 20px;
+        }
+        
+        .date-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        
+        /* 数据分析 */
+        .analytics {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .analytics-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .analytics-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .period-option {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .period-option.active {
+            background-color: white;
+            color: #6e8efb;
+            font-weight: bold;
+        }
+        
+        .analytics-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .category-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+            margin-right: 12px;
+        }
+        
+        .category-details {
+            flex: 1;
+        }
+        
+        .category-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .category-percent {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .category-amount {
+            font-weight: bold;
+        }
+        
+        /* 预算管理 */
+        .budget {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .budget-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .budget-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .budget-overview {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .budget-overview-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .budget-progress {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 65%;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .budget-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        
+        .budget-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .budget-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .budget-category {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .budget-category-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .category-budget-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        
+        .category-budget-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+        }
+        
+        .category-budget-progress {
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .category-progress-bar {
+            height: 100%;
+            background-color: #6e8efb;
+            border-radius: 4px;
+        }
+        
+        .category-budget-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .add-budget-btn {
+            background-color: #f9f9f9;
+            border: 1px dashed #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #666;
+        }
+        
+        /* 个人中心 */
+        .profile {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .profile-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .profile-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .profile-content {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .profile-section {
+            margin-bottom: 20px;
+        }
+        
+        .profile-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .profile-menu {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e8efb;
+            margin-right: 15px;
+        }
+        
+        .menu-title {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        /* AI助手 */
+        .ai-assistant {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ai-assistant-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ai-assistant-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .ai-assistant-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: white;
+            border-left: 3px solid #6e8efb;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: #6e8efb;
+            color: white;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 25px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #6e8efb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            color: #999;
+        }
+        
+        .nav-icon.active {
+            color: #6e8efb;
+        }
+        
+        .nav-label {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .nav-label.active {
+            color: #6e8efb;
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-container">
+        <!-- 启动页 -->
+        <div class="screen">
+            <div class="screen-title">启动页</div>
+
+            <div class="splash-screen">
+                <div class="splash-logo">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="splash-title">智能记账</div>
+                <div class="splash-subtitle">让AI为您的财务保驾护航</div>
+            </div>
+        </div>
+        
+        <!-- 登录页 -->
+        <div class="screen">
+            <div class="screen-title">登录页</div>
+            <div class="login-screen">
+                <div class="login-header">
+                    <div class="splash-logo" style="font-size: 40px; color: #6e8efb;">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="login-title">欢迎回来</div>
+                    <div style="color: #666; font-size: 14px;">请登录您的账户</div>
+                </div>
+                <div class="login-form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="input-field" placeholder="用户名/手机号">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="input-field" placeholder="密码">
+                    </div>
+                    <button class="login-button">登录</button>
+                </div>
+                <div class="login-options">
+                    <span>忘记密码?</span>
+                    <span>注册新账户</span>
+                </div>
+                <div class="social-login">
+                    <div class="social-icon">
+                        <i class="fab fa-weixin"></i>
+                    </div>
+                    <div class="social-icon">
+                        <i class="fab fa-qq"></i>
+                    </div>
+                    <div class="social-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 首页/仪表盘 -->
+        <div class="screen">
+            <div class="screen-title">首页/仪表盘</div>
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <div class="user-greeting">
+                        <div class="greeting-text">
+                            <h2>你好，小明</h2>
+                            <p>周三, 6月15日</p>
+                        </div>
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="balance-card">
+                        <div class="balance-title">本月余额</div>
+                        <div class="balance-amount">¥ 5,280.75</div>
+                        <div class="balance-actions">
+                            <button class="balance-action-btn">
+                                <i class="fas fa-plus"></i> 收入
+                            </button>
+                            <button class="balance-action-btn">
+                                <i class="fas fa-minus"></i> 支出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="stat-value">¥3,240</div>
+                            <div class="stat-label">本月收入</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="stat-value">¥1,850</div>
+                            <div class="stat-label">本月支出</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title">
+                        <span>最近交易</span>
+                        <a href="#">查看全部</a>
+                    </div>
+                    
+                    <div class="recent-transactions">
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">午餐</div>
+                                <div class="transaction-date">今天, 12:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥35</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">超市购物</div>
+                                <div class="transaction-date">昨天, 18:45</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥128.50</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">公交车</div>
+                                <div class="transaction-date">昨天, 08:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥2</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">工资</div>
+                                <div class="transaction-date">6月10日</div>
+                            </div>
+                            <div class="transaction-amount income">+¥6,500</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title">
+                        <span>智能建议</span>
+                    </div>
+                    
+                    <div style="background-color: #f0f7ff; padding: 15px; border-radius: 12px; border-left: 3px solid #6e8efb;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">本月餐饮支出较高</div>
+                        <div style="font-size: 12px; color: #666;">您的餐饮支出已超过预算的80%，建议控制外卖频率。</div>
+                    </div>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label active">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 记账界面 -->
+        <div class="screen">
+            <div class="screen-title">记账界面</div>
+            <div class="add-record">
+                <div class="add-record-header">
+                    <div class="add-record-title">添加记录</div>
+                </div>
+                <div class="add-record-content">
+                    <div class="record-type-tabs">
+                        <div class="record-tab active">支出</div>
+                        <div class="record-tab">收入</div>
+                        <div class="record-tab">转账</div>
+                    </div>
+                    
+                    <div class="amount-input">
+                        <input type="text" value="¥ 35.00">
+                    </div>
+                    
+                    <div class="record-options">
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="option-name">餐饮</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="option-name">购物</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="option-name">交通</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="option-name">住房</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-medkit"></i>
+                            </div>
+                            <div class="option-name">医疗</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="option-name">娱乐</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="option-name">教育</div>
+                        </div>
+                        <div class="record-option">
+                            <div class="option-icon">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                            <div class="option-name">更多</div>
+                        </div>
+                    </div>
+                    
+                    <div class="record-details">
+                        <div class="detail-item">
+                            <div class="detail-label">日期</div>
+                            <div class="detail-value">
+                                今天 <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">账户</div>
+                            <div class="detail-value">
+                                支付宝 <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">备注</div>
+                            <div class="detail-value">
+                                添加备注 <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="save-record-btn">保存</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI记账界面 -->
+        <div class="screen">
+            <div class="screen-title">AI记账</div>
+            <div class="ai-record">
+                <div class="ai-record-header">
+                    <div class="add-record-title">AI智能记账</div>
+                </div>
+                <div class="ai-record-content">
+                    <div class="ai-methods">
+                        <div class="ai-method">
+                            <div class="ai-method-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="ai-method-details">
+                                <div class="ai-method-title">拍照识别</div>
+                                <div class="ai-method-desc">拍摄票据自动识别金额和类别</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-method">
+                            <div class="ai-method-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="ai-method-details">
+                                <div class="ai-method-title">截图识别</div>
+                                <div class="ai-method-desc">识别支付宝、微信等支付截图</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-method">
+                            <div class="ai-method-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <div class="ai-method-details">
+                                <div class="ai-method-title">语音记账</div>
+                                <div class="ai-method-desc">说出消费内容，AI自动记录</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-history">
+                        <div class="ai-history-title">最近识别</div>
+                        
+                        <div class="ai-history-item">
+                            <div class="ai-history-icon">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">超市购物小票</div>
+                                <div class="transaction-date">今天, 16:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥128.50</div>
+                        </div>
+                        
+                        <div class="ai-history-item">
+                            <div class="ai-history-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">外卖支付截图</div>
+                                <div class="transaction-date">昨天, 19:15</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥45.00</div>
+                        </div>
+                        
+                        <div class="ai-history-item">
+                            <div class="ai-history-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">语音记录：打车回家</div>
+                                <div class="transaction-date">6月12日</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥23.50</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label active">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 账单明细 -->
+        <div class="screen">
+            <div class="screen-title">账单明细</div>
+            <div class="transactions">
+                <div class="transactions-header">
+                    <div class="transactions-title">账单明细</div>
+                    <div class="filter-options">
+                        <div class="filter-option active">全部</div>
+                        <div class="filter-option">收入</div>
+                        <div class="filter-option">支出</div>
+                        <div class="filter-option">转账</div>
+                        <div class="filter-option">筛选</div>
+                    </div>
+                </div>
+                <div class="transactions-content">
+                    <div class="transaction-date-group">
+                        <div class="date-header">
+                            <span>今天</span>
+                            <span>支出: ¥163.50</span>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">午餐</div>
+                                <div class="transaction-date">12:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥35</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">超市购物</div>
+                                <div class="transaction-date">16:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥128.50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-date-group">
+                        <div class="date-header">
+                            <span>昨天</span>
+                            <span>支出: ¥70.50</span>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">公交车</div>
+                                <div class="transaction-date">08:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥2</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">外卖</div>
+                                <div class="transaction-date">19:15</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥45</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-taxi"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">打车</div>
+                                <div class="transaction-date">21:30</div>
+                            </div>
+                            <div class="transaction-amount expense">-¥23.50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-date-group">
+                        <div class="date-header">
+                            <span>6月10日</span>
+                            <span>收入: ¥6,500</span>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-name">工资</div>
+                                <div class="transaction-date">10:00</div>
+                            </div>
+                            <div class="transaction-amount income">+¥6,500</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label active">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 数据分析 -->
+        <div class="screen">
+            <div class="screen-title">数据分析</div>
+            <div class="analytics">
+                <div class="analytics-header">
+                    <div class="analytics-title">消费分析</div>
+                    <div class="period-selector">
+                        <div class="period-option">本周</div>
+                        <div class="period-option active">本月</div>
+                        <div class="period-option">三个月</div>
+                        <div class="period-option">本年</div>
+                        <div class="period-option">自定义</div>
+                    </div>
+                </div>
+                <div class="analytics-content">
+                    <div class="chart-container">
+                        <div class="chart-title">支出趋势</div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line" style="font-size: 24px; margin-right: 10px;"></i> 支出趋势图
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">支出分类</div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-pie" style="font-size: 24px; margin-right: 10px;"></i> 支出分类饼图
+                        </div>
+                    </div>
+                    
+                    <div class="category-stats">
+                        <div class="category-item">
+                            <div class="category-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="category-details">
+                                <div class="category-name">餐饮</div>
+                                <div class="category-percent">占总支出的35%</div>
+                            </div>
+                            <div class="category-amount">¥648.50</div>
+                        </div>
+                        
+                        <div class="category-item">
+                            <div class="category-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="category-details">
+                                <div class="category-name">购物</div>
+                                <div class="category-percent">占总支出的25%</div>
+                            </div>
+                            <div class="category-amount">¥462.50</div>
+                        </div>
+                        
+                        <div class="category-item">
+                            <div class="category-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="category-details">
+                                <div class="category-name">交通</div>
+                                <div class="category-percent">占总支出的15%</div>
+                            </div>
+                            <div class="category-amount">¥277.50</div>
+                        </div>
+                        
+                        <div class="category-item">
+                            <div class="category-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="category-details">
+                                <div class="category-name">住房</div>
+                                <div class="category-percent">占总支出的10%</div>
+                            </div>
+                            <div class="category-amount">¥185.00</div>
+                        </div>
+                        
+                        <div class="category-item">
+                            <div class="category-icon">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                            <div class="category-details">
+                                <div class="category-name">其他</div>
+                                <div class="category-percent">占总支出的15%</div>
+                            </div>
+                            <div class="category-amount">¥277.50</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label active">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 预算管理 -->
+        <div class="screen">
+            <div class="screen-title">预算管理</div>
+            <div class="budget">
+                <div class="budget-header">
+                    <div class="budget-title">预算管理</div>
+                    <div class="budget-overview">
+                        <div class="budget-overview-title">本月总预算</div>
+                        <div class="budget-progress">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <div class="budget-stats">
+                            <span>已用: ¥1,850 / ¥3,000</span>
+                            <span>剩余: ¥1,150</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="budget-content">
+                    <div class="budget-categories">
+                        <div class="budget-category">
+                            <div class="budget-category-header">
+                                <div class="category-budget-name">
+                                    <div class="category-budget-icon">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <span>餐饮</span>
+                                </div>
+                                <span>¥648.50 / ¥800</span>
+                            </div>
+                            <div class="category-budget-progress">
+                                <div class="category-progress-bar" style="width: 80%;"></div>
+                            </div>
+                            <div class="category-budget-stats">
+                                <span>已用80%</span>
+                                <span>剩余: ¥151.50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="budget-category">
+                            <div class="budget-category-header">
+                                <div class="category-budget-name">
+                                    <div class="category-budget-icon">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                    <span>购物</span>
+                                </div>
+                                <span>¥462.50 / ¥600</span>
+                            </div>
+                            <div class="category-budget-progress">
+                                <div class="category-progress-bar" style="width: 77%;"></div>
+                            </div>
+                            <div class="category-budget-stats">
+                                <span>已用77%</span>
+                                <span>剩余: ¥137.50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="budget-category">
+                            <div class="budget-category-header">
+                                <div class="category-budget-name">
+                                    <div class="category-budget-icon">
+                                        <i class="fas fa-bus"></i>
+                                    </div>
+                                    <span>交通</span>
+                                </div>
+                                <span>¥277.50 / ¥500</span>
+                            </div>
+                            <div class="category-budget-progress">
+                                <div class="category-progress-bar" style="width: 55%;"></div>
+                            </div>
+                            <div class="category-budget-stats">
+                                <span>已用55%</span>
+                                <span>剩余: ¥222.50</span>
+                            </div>
+                        </div>
+                        
+                        <div class="budget-category">
+                            <div class="budget-category-header">
+                                <div class="category-budget-name">
+                                    <div class="category-budget-icon">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <span>住房</span>
+                                </div>
+                                <span>¥185.00 / ¥500</span>
+                            </div>
+                            <div class="category-budget-progress">
+                                <div class="category-progress-bar" style="width: 37%;"></div>
+                            </div>
+                            <div class="category-budget-stats">
+                                <span>已用37%</span>
+                                <span>剩余: ¥315.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="add-budget-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>添加预算类别</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label active">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 个人中心 -->
+        <div class="screen">
+            <div class="screen-title">个人中心</div>
+            <div class="profile">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-name">小明</div>
+                    <div class="profile-email">xiaoming@example.com</div>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-section">
+                        <div class="profile-section-title">账户管理</div>
+                        <div class="profile-menu">
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="menu-title">我的账户</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="menu-title">家庭共享</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="menu-title">提醒设置</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <div class="profile-section-title">应用设置</div>
+                        <div class="profile-menu">
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="menu-title">通用设置</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="menu-title">隐私与安全</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div class="menu-title">帮助与反馈</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                            <div class="profile-menu-item">
+                                <div class="menu-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="menu-title">关于我们</div>
+                                <i class="fas fa-chevron-right" style="font-size: 12px; color: #999;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="logout-btn">退出登录</button>
+                </div>
+                
+                <div class="bottom-nav">
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="nav-label">首页</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-label">记账</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="nav-label">统计</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon active">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="nav-label active">我的</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI助手 -->
+        <div class="screen">
+            <div class="screen-title">AI财务助手</div>
+            <div class="ai-assistant">
+                <div class="ai-assistant-header">
+                    <div class="ai-assistant-title">AI财务助手</div>
+                </div>
+                <div class="ai-assistant-content">
+                    <div class="chat-container">
+                        <div class="chat-message ai-message">
+                            您好！我是您的AI财务助手，有什么可以帮您的吗？
+                        </div>
+                        
+                        <div class="chat-message user-message">
+                            我想知道我这个月的消费情况
+                        </div>
+                        
+                        <div class="chat-message ai-message">
+                            根据您的消费记录，本月您已消费¥1,850，占预算的62%。其中餐饮支出占比最高，达到35%。与上月相比，您的餐饮支出增加了15%，建议适当控制外卖频率。
+                        </div>
+                        
+                        <div class="chat-message user-message">
+                            我的预算执行情况怎么样？
+                        </div>
+                        
+                        <div class="chat-message ai-message">
+                            您的餐饮预算已使用80%，购物预算已使用77%，这两项接近预算上限。交通和住房预算执行良好，分别使用了55%和37%。建议接下来半个月控制餐饮和购物支出。
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" placeholder="输入您的问题...">
+                        <button class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
